@@ -1,0 +1,36 @@
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Storage / runtime artifacts
+storage/
+data/
+tmp/
+*.log
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Claude local memory / agent state
+.claude/agent-memory-local/
+
+# Docker volumes (just in case)
+pgdata/

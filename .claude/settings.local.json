@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -o '\"role\":\"user\"[^}]*\"content\":\"[^\"]\\\\{0,400\\\\}' \"C:/Users/lua22/.claude/projects/C--Users-lua22-Desktop-creacionSoftware-ocr/eb029e3a-a3f9-41fd-ba80-06cfe1c5abf9.jsonl\")",
+      "Bash(grep -o '\"role\":\"assistant\"[^}]*\"text\":\"[^\"]\\\\{0,500\\\\}' \"C:/Users/lua22/.claude/projects/C--Users-lua22-Desktop-creacionSoftware-ocr/eb029e3a-a3f9-41fd-ba80-06cfe1c5abf9.jsonl\")",
+      "Bash(python -m py_compile app/config.py app/database.py app/logging_config.py app/main.py app/models/template.py app/models/document.py app/models/document_page.py app/models/cfdi_extraction.py app/schemas/document.py app/schemas/template.py app/repositories/template_repo.py app/repositories/document_repo.py app/services/cfdi_parser.py app/services/field_extractor.py app/services/language_detector.py app/services/pdf_inspector.py app/services/pdf_password.py app/services/searchable_pdf.py app/services/document_service.py app/services/ocr/base.py app/services/ocr/tesseract.py app/services/ocr/factory.py app/services/exporters/txt.py app/services/exporters/json_export.py app/services/exporters/xlsx.py app/services/exporters/docx.py app/services/exporters/searchable_pdf.py app/api/deps.py app/api/health.py app/api/templates.py app/api/documents.py app/alembic/env.py app/alembic/versions/0001_initial.py)",
+      "Bash(python -m py_compile app/services/document_service.py app/api/documents.py)",
+      "Bash(python -m py_compile app/repositories/document_repo.py app/api/documents.py)",
+      "Bash(python -c ' *)",
+      "Bash(python -m py_compile app/schemas/document.py app/api/documents.py)",
+      "Bash(docker --version)",
+      "Bash(docker compose *)",
+      "Bash(docker info *)",
+      "Bash(netstat -ano -p TCP)",
+      "Bash(curl -s -o /dev/null -w \"Backend health: %{http_code}\\\\n\" http://localhost:8000/health)",
+      "Bash(curl -s -o /dev/null -w \"Frontend root \\(redirect\\): %{http_code}\\\\n\" http://localhost:18080/)",
+      "Bash(curl -s -o /dev/null -w \"Frontend /ocr/: %{http_code}\\\\n\" http://localhost:18080/ocr/)",
+      "Bash(curl -s -o /dev/null -w \"Templates API: %{http_code}\\\\n\" http://localhost:8000/templates)",
+      "Bash(docker exec ocr-backend python -c ' *)",
+      "Bash(docker exec *)",
+      "Bash(curl *)",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec ocr-backend ls -la /storage/exports/858d2f6b-3514-4ba9-9ee3-5f29aa95e956/)",
+      "Read(//c/Users/lua22/Downloads/**)",
+      "Read(//c/Users/lua22/Desktop/creacionSoftware/rediseñoServicioSocialyPracticasProfesionales/tmp/ocr/**)",
+      "Bash(git init *)",
+      "Bash(git -c user.name=\"LucioSalva\" -c user.email=\"marioalbertomoreno@gmail.com\" add .)"
+    ]
+  }
+}

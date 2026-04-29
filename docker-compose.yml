@@ -1,0 +1,96 @@
+name: ocr
+
+services:
+  db:
+    image: postgres:16.4-alpine
+    container_name: ocr-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      # Solo expuesto en loopback del host para inspeccion local con un cliente.
+      # Si no necesitas conectarte desde el host, comenta esta linea.
+      - "127.0.0.1:${DB_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - ocrnet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: ocr-backend:0.1.0
+    container_name: ocr-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      OCR_ENGINE: ${OCR_ENGINE}
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB}
+      STORAGE_PATH: ${STORAGE_PATH}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+      TESSDATA_PREFIX: /usr/share/tesseract-ocr/5/tessdata
+    ports:
+      - "127.0.0.1:${BACKEND_PORT}:8000"
+    volumes:
+      - storage:${STORAGE_PATH}
+    networks:
+      - ocrnet
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).status==200 else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: ocr-frontend:0.1.0
+    container_name: ocr-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT}:80"
+    networks:
+      - ocrnet
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  ocrnet:
+    driver: bridge
+
+volumes:
+  pgdata:
+    name: ocr_pgdata
+  storage:
+    name: ocr_storage

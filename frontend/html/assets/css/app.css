@@ -1,0 +1,110 @@
+/* ==========================================================
+   OCR Local - estilos custom mínimos.
+   Bootstrap 5 cubre el grueso; aquí sólo overrides finos.
+   ========================================================== */
+
+:root {
+  --ocr-drop-border: #ced4da;
+  --ocr-drop-border-hover: #0d6efd;
+  --ocr-drop-bg: #f8f9fa;
+  --ocr-drop-bg-hover: #e7f1ff;
+}
+
+/* ----- Drop zone ----- */
+.drop-zone {
+  border: 2px dashed var(--ocr-drop-border);
+  border-radius: 0.5rem;
+  background: var(--ocr-drop-bg);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  min-height: 9rem;
+  user-select: none;
+}
+
+.drop-zone:hover,
+.drop-zone:focus-visible {
+  border-color: var(--ocr-drop-border-hover);
+  background: var(--ocr-drop-bg-hover);
+  outline: none;
+}
+
+.drop-zone.is-dragover {
+  border-color: var(--ocr-drop-border-hover);
+  background: var(--ocr-drop-bg-hover);
+}
+
+.drop-zone.has-file {
+  border-style: solid;
+  border-color: #198754;
+  background: #f3fbf6;
+}
+
+/* ----- Snippet de FTS ----- */
+.history-snippet {
+  display: block;
+  color: #6c757d;
+  font-size: 0.8125rem;
+  margin-top: 0.15rem;
+  line-height: 1.35;
+}
+
+.history-snippet b {
+  background-color: #fff3cd;
+  font-weight: 600;
+  padding: 0 0.1rem;
+  border-radius: 0.15rem;
+}
+
+/* ----- Truncado de nombre de archivo ----- */
+.text-truncate-name {
+  display: inline-block;
+  max-width: 24ch;
+  vertical-align: bottom;
+}
+
+/* ----- Estado de status badge animado ----- */
+.badge.bg-processing {
+  background-color: #0d6efd !important;
+  animation: pulseBadge 1.4s ease-in-out infinite;
+}
+
+@keyframes pulseBadge {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* ----- Tabla de campos: valor vacío ----- */
+.field-empty {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+/* ----- Resultado: textarea más cómodo ----- */
+#resultTextArea {
+  background-color: #fdfdfd;
+  resize: vertical;
+}
+
+/* ----- Navbar tabs activos ----- */
+.navbar .nav-link.active {
+  color: #fff !important;
+  font-weight: 600;
+}
+
+/* ----- Card hover sutil ----- */
+.card {
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* ----- Tabla historial: tighter ----- */
+#historyBody td {
+  vertical-align: middle;
+}
+
+/* ----- Responsive: drop zone más pequeña en móvil ----- */
+@media (max-width: 575.98px) {
+  .drop-zone {
+    min-height: 7rem;
+    padding: 1rem !important;
+  }
+}

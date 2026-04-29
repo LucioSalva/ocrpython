@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="OCR local - procesamiento de documentos en localhost" />
+    <title>OCR Local</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="assets/css/app.css" />
+  </head>
+  <body class="bg-light d-flex flex-column min-vh-100">
+    <!-- ====== Navbar ====== -->
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top shadow-sm">
+      <div class="container">
+        <span class="navbar-brand mb-0 h1 d-flex align-items-center gap-2">
+          <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
+          OCR Local
+        </span>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNavCollapse"
+          aria-controls="mainNavCollapse"
+          aria-expanded="false"
+          aria-label="Alternar navegacion"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNavCollapse">
+          <ul class="navbar-nav ms-auto" role="tablist" id="mainTabs">
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active text-white-50"
+                id="tab-process-link"
+                data-bs-toggle="tab"
+                data-bs-target="#tab-process"
+                type="button"
+                role="tab"
+                aria-controls="tab-process"
+                aria-selected="true"
+              >
+                <i class="bi bi-cloud-upload me-1" aria-hidden="true"></i>Procesar
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link text-white-50"
+                id="tab-history-link"
+                data-bs-toggle="tab"
+                data-bs-target="#tab-history"
+                type="button"
+                role="tab"
+                aria-controls="tab-history"
+                aria-selected="false"
+              >
+                <i class="bi bi-clock-history me-1" aria-hidden="true"></i>Historial
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ====== Main ====== -->
+    <main class="container py-4 flex-grow-1">
+      <!-- Alerta global de red -->
+      <div
+        id="globalAlert"
+        class="alert alert-danger d-none"
+        role="alert"
+        aria-live="assertive"
+      ></div>
+
+      <div class="tab-content" id="mainTabsContent">
+        <!-- ============================================== -->
+        <!-- ============== TAB PROCESAR ================== -->
+        <!-- ============================================== -->
+        <section
+          class="tab-pane fade show active"
+          id="tab-process"
+          role="tabpanel"
+          aria-labelledby="tab-process-link"
+        >
+          <!-- Card de subida -->
+          <article class="card shadow-sm mb-4" id="uploadCard">
+            <header class="card-header bg-white">
+              <h2 class="h5 mb-0">
+                <i class="bi bi-upload me-2" aria-hidden="true"></i>Nuevo documento
+              </h2>
+            </header>
+            <div class="card-body">
+              <form id="uploadForm" novalidate>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="templateSelect" class="form-label fw-semibold">
+                      Plantilla
+                    </label>
+                    <select
+                      class="form-select"
+                      id="templateSelect"
+                      name="template_code"
+                      required
+                      aria-describedby="templateHelp"
+                    >
+                      <option value="" selected disabled>Cargando plantillas...</option>
+                    </select>
+                    <div id="templateHelp" class="form-text">
+                      Tipo de documento que vas a procesar.
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="fileInput" class="form-label fw-semibold">
+                      Archivo
+                    </label>
+                    <input
+                      type="file"
+                      class="form-control visually-hidden"
+                      id="fileInput"
+                      accept=".pdf,.jpg,.jpeg,.png,.xml,application/pdf,image/jpeg,image/png,application/xml,text/xml"
+                      aria-describedby="fileHelp"
+                    />
+                    <div
+                      id="dropZone"
+                      class="drop-zone d-flex flex-column align-items-center justify-content-center text-center p-3"
+                      tabindex="0"
+                      role="button"
+                      aria-label="Selecciona o arrastra un archivo aqui"
+                    >
+                      <i
+                        class="bi bi-cloud-arrow-up display-6 text-secondary mb-1"
+                        aria-hidden="true"
+                      ></i>
+                      <strong class="d-block">Arrastra un archivo o haz clic</strong>
+                      <small class="text-muted">PDF, JPG, PNG o XML - max 20 MB</small>
+                      <div
+                        id="fileMeta"
+                        class="mt-2 small text-body d-none"
+                        aria-live="polite"
+                      ></div>
+                    </div>
+                    <div id="fileHelp" class="form-text">
+                      Solo se procesa localmente. Nada sale de tu maquina.
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Progreso de subida -->
+                <div id="uploadProgressWrap" class="mt-3 d-none" aria-live="polite">
+                  <label for="uploadProgress" class="form-label small mb-1">
+                    Subiendo...
+                  </label>
+                  <div class="progress" style="height: 0.75rem;">
+                    <div
+                      id="uploadProgress"
+                      class="progress-bar progress-bar-striped progress-bar-animated"
+                      role="progressbar"
+                      style="width: 0%;"
+                      aria-valuenow="0"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                </div>
+
+                <div class="mt-3 d-flex gap-2 flex-wrap">
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="submitBtn"
+                    disabled
+                  >
+                    <span
+                      id="submitSpinner"
+                      class="spinner-border spinner-border-sm me-1 d-none"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    <i class="bi bi-play-fill me-1" aria-hidden="true"></i>Procesar
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    id="resetBtn"
+                  >
+                    <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>
+                    Limpiar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </article>
+
+          <!-- Card de estado -->
+          <article class="card shadow-sm mb-4 d-none" id="statusCard" aria-live="polite">
+            <header class="card-header bg-white d-flex justify-content-between align-items-center">
+              <h2 class="h5 mb-0">
+                <i class="bi bi-activity me-2" aria-hidden="true"></i>Estado del procesamiento
+              </h2>
+              <span class="badge bg-secondary" id="statusBadge">-</span>
+            </header>
+            <div class="card-body">
+              <p class="mb-2">
+                Documento <code id="statusJobId" class="small">-</code>
+              </p>
+              <p id="statusMessage" class="mb-0 text-muted">
+                Esperando al backend...
+              </p>
+              <div id="statusError" class="alert alert-danger mt-3 d-none" role="alert"></div>
+            </div>
+          </article>
+
+          <!-- Card de resultado -->
+          <article class="card shadow-sm d-none" id="resultCard">
+            <header class="card-header bg-white">
+              <h2 class="h5 mb-0">
+                <i class="bi bi-check2-circle me-2 text-success" aria-hidden="true"></i>
+                Resultado
+              </h2>
+            </header>
+            <div class="card-body">
+              <ul class="nav nav-tabs" id="resultTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link active"
+                    id="result-text-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#result-text"
+                    type="button"
+                    role="tab"
+                    aria-controls="result-text"
+                    aria-selected="true"
+                  >
+                    Texto
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="result-fields-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#result-fields"
+                    type="button"
+                    role="tab"
+                    aria-controls="result-fields"
+                    aria-selected="false"
+                  >
+                    Campos extraidos
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="result-meta-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#result-meta"
+                    type="button"
+                    role="tab"
+                    aria-controls="result-meta"
+                    aria-selected="false"
+                  >
+                    Metadatos
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="result-original-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#result-original"
+                    type="button"
+                    role="tab"
+                    aria-controls="result-original"
+                    aria-selected="false"
+                  >
+                    Original
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="result-layout-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#result-layout"
+                    type="button"
+                    role="tab"
+                    aria-controls="result-layout"
+                    aria-selected="false"
+                  >
+                    Reconstruido
+                  </button>
+                </li>
+              </ul>
+
+              <div class="tab-content pt-3" id="resultTabsContent">
+                <div
+                  class="tab-pane fade show active"
+                  id="result-text"
+                  role="tabpanel"
+                  aria-labelledby="result-text-link"
+                >
+                  <div class="d-flex justify-content-end mb-2">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-secondary"
+                      id="copyTextBtn"
+                    >
+                      <i class="bi bi-clipboard me-1" aria-hidden="true"></i>
+                      Copiar al portapapeles
+                    </button>
+                  </div>
+                  <label for="resultTextArea" class="visually-hidden">
+                    Texto extraido
+                  </label>
+                  <textarea
+                    id="resultTextArea"
+                    class="form-control font-monospace small"
+                    rows="14"
+                    readonly
+                  ></textarea>
+                </div>
+
+                <div
+                  class="tab-pane fade"
+                  id="result-fields"
+                  role="tabpanel"
+                  aria-labelledby="result-fields-link"
+                >
+                  <div class="table-responsive">
+                    <table class="table table-sm table-striped align-middle mb-0">
+                      <thead>
+                        <tr>
+                          <th scope="col" style="width: 35%;">Clave</th>
+                          <th scope="col">Valor</th>
+                        </tr>
+                      </thead>
+                      <tbody id="resultFieldsBody">
+                        <tr>
+                          <td colspan="2" class="text-center text-muted">
+                            Sin campos.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div
+                  class="tab-pane fade"
+                  id="result-meta"
+                  role="tabpanel"
+                  aria-labelledby="result-meta-link"
+                >
+                  <dl class="row mb-0" id="resultMetaList"></dl>
+                </div>
+
+                <div
+                  class="tab-pane fade"
+                  id="result-original"
+                  role="tabpanel"
+                  aria-labelledby="result-original-link"
+                >
+                  <div id="resultOriginalContainer" class="border rounded bg-white" style="height: 70vh; overflow: auto;">
+                    <div class="text-center text-muted py-4" id="resultOriginalEmpty">
+                      Vista no disponible.
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <a
+                      id="resultOriginalLink"
+                      href="#"
+                      target="_blank"
+                      rel="noopener"
+                      class="small d-none"
+                    >
+                      <i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>
+                      Abrir en pestana nueva
+                    </a>
+                  </div>
+                </div>
+
+                <div
+                  class="tab-pane fade"
+                  id="result-layout"
+                  role="tabpanel"
+                  aria-labelledby="result-layout-link"
+                >
+                  <p class="small text-muted mb-2">
+                    Texto extraido acomodado segun la posicion en el documento original.
+                  </p>
+                  <div id="resultLayoutContainer" class="border rounded bg-white" style="height: 70vh; overflow: auto;">
+                    <div class="text-center text-muted py-4" id="resultLayoutEmpty">
+                      Vista no disponible.
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <a
+                      id="resultLayoutLink"
+                      href="#"
+                      target="_blank"
+                      rel="noopener"
+                      class="small d-none"
+                    >
+                      <i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>
+                      Abrir en pestana nueva
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <hr />
+
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <span class="fw-semibold me-2">Descargar:</span>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary export-btn"
+                  data-format="txt"
+                >
+                  <i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i>TXT
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary export-btn"
+                  data-format="json"
+                >
+                  <i class="bi bi-file-earmark-code me-1" aria-hidden="true"></i>JSON
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary export-btn"
+                  data-format="pdf"
+                  id="exportPdfBtn"
+                >
+                  <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>
+                  PDF buscable
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary export-btn"
+                  data-format="xlsx"
+                >
+                  <i class="bi bi-file-earmark-spreadsheet me-1" aria-hidden="true"></i>
+                  XLSX
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary export-btn"
+                  data-format="docx"
+                >
+                  <i class="bi bi-file-earmark-word me-1" aria-hidden="true"></i>DOCX
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-sm btn-success ms-auto"
+                  id="processAnotherBtn"
+                >
+                  <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Procesar otro
+                </button>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- ============== TAB HISTORIAL ================= -->
+        <!-- ============================================== -->
+        <section
+          class="tab-pane fade"
+          id="tab-history"
+          role="tabpanel"
+          aria-labelledby="tab-history-link"
+        >
+          <article class="card shadow-sm mb-4">
+            <header class="card-header bg-white">
+              <h2 class="h5 mb-0">
+                <i class="bi bi-search me-2" aria-hidden="true"></i>Buscar en historial
+              </h2>
+            </header>
+            <div class="card-body">
+              <form id="historyForm" class="row g-2 align-items-end" novalidate>
+                <div class="col-md-6">
+                  <label for="historyQuery" class="form-label small mb-1">
+                    Texto
+                  </label>
+                  <input
+                    type="search"
+                    class="form-control"
+                    id="historyQuery"
+                    placeholder="Buscar texto..."
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label for="historyTemplate" class="form-label small mb-1">
+                    Plantilla
+                  </label>
+                  <select class="form-select" id="historyTemplate">
+                    <option value="">Todas</option>
+                  </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search me-1" aria-hidden="true"></i>Buscar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </article>
+
+          <article class="card shadow-sm">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead>
+                    <tr>
+                      <th scope="col">Documento</th>
+                      <th scope="col">Plantilla</th>
+                      <th scope="col">Idioma</th>
+                      <th scope="col">Fecha</th>
+                      <th scope="col" class="text-end">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="historyBody">
+                    <tr>
+                      <td colspan="5" class="text-center text-muted py-4">
+                        Cargando...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <nav
+                class="d-flex justify-content-between align-items-center"
+                aria-label="Paginacion historial"
+              >
+                <small class="text-muted" id="historyRange">-</small>
+                <div class="btn-group" role="group" aria-label="Paginacion">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    id="historyPrev"
+                    disabled
+                  >
+                    <i class="bi bi-chevron-left" aria-hidden="true"></i> Anterior
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    id="historyNext"
+                    disabled
+                  >
+                    Siguiente <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </nav>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+
+    <!-- ====== Modal password ====== -->
+    <div
+      class="modal fade"
+      id="passwordModal"
+      tabindex="-1"
+      aria-labelledby="passwordModalLabel"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form id="passwordForm" novalidate>
+            <div class="modal-header">
+              <h2 class="modal-title h5" id="passwordModalLabel">
+                <i class="bi bi-shield-lock me-2" aria-hidden="true"></i>
+                PDF protegido
+              </h2>
+            </div>
+            <div class="modal-body">
+              <p class="mb-3">
+                Este PDF esta cifrado. Ingresa la contrasena para procesarlo.
+              </p>
+              <label for="pdfPasswordInput" class="form-label small mb-1">
+                Contrasena
+              </label>
+              <input
+                type="password"
+                id="pdfPasswordInput"
+                class="form-control"
+                autocomplete="off"
+                required
+              />
+              <div
+                id="passwordError"
+                class="alert alert-danger mt-3 d-none mb-0"
+                role="alert"
+              ></div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                data-bs-dismiss="modal"
+                id="passwordCancelBtn"
+              >
+                Cancelar
+              </button>
+              <button type="submit" class="btn btn-primary" id="passwordSubmitBtn">
+                <span
+                  id="passwordSpinner"
+                  class="spinner-border spinner-border-sm me-1 d-none"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Enviar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== Footer ====== -->
+    <footer class="border-top bg-white py-3 mt-auto">
+      <div class="container">
+        <small class="text-muted">Uso personal &middot; localhost</small>
+      </div>
+    </footer>
+
+    <!-- Bootstrap bundle (incluye Popper) -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/upload.js"></script>
+    <script src="assets/js/polling.js"></script>
+    <script src="assets/js/result.js"></script>
+    <script src="assets/js/history.js"></script>
+    <script src="assets/js/app.js"></script>
+  </body>
+</html>

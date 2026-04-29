@@ -1,0 +1,28 @@
+# Web framework
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.9
+pydantic-settings==2.5.2
+
+# DB
+psycopg[binary]==3.2.3
+sqlalchemy==2.0.35
+alembic==1.13.3
+
+# OCR / PDF
+pymupdf==1.24.10
+pytesseract==0.3.13
+ocrmypdf==16.5.0
+pillow==10.4.0
+opencv-python-headless==4.10.0.84
+
+# Exports
+openpyxl==3.1.5
+python-docx==1.1.2
+lxml==5.3.0
+
+# Language detection
+langdetect==1.0.9
+
+# PDF password handling
+pikepdf==9.3.0

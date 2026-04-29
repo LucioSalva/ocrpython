@@ -1,0 +1,65 @@
+# VCS
+.git
+.gitignore
+.gitattributes
+
+# Editor / IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Env / secrets (must NOT enter the image)
+.env
+.env.*
+!.env.example
+
+# Local-only state
+.claude
+.claude/**
+
+# Docker
+docker-compose.override.yml
+
+# Python
+__pycache__
+*.py[cod]
+*.egg-info
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.tox
+.venv
+venv
+env
+
+# Node (in case any tooling appears later)
+node_modules
+
+# Logs / runtime
+*.log
+logs/
+tmp/
+.cache
+
+# Build / dist
+build/
+dist/
+
+# Storage / data should NEVER be baked into images
+storage/
+pgdata/
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.tiff
+
+# Docs / misc
+*.md
+!README.md
