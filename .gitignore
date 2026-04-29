@@ -34,3 +34,10 @@ Thumbs.db
 
 # Docker volumes (just in case)
 pgdata/
+
+# OCR CLI standalone
+input/*.pdf
+input/*.PDF
+output/*/
+!output/.gitkeep
+

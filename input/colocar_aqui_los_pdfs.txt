@@ -1,0 +1,7 @@
+Coloca aqui tus PDFs escaneados (.pdf).
+
+Uso:
+  python main.py --pdf input/<archivo>.pdf
+  python main.py                 # procesa todos los .pdf en esta carpeta
+
+La salida se genera en ../output/<nombre_sin_extension>/.
