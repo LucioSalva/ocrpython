@@ -41,3 +41,6 @@ input/*.PDF
 output/*/
 !output/.gitkeep
 
+# Tesseract trained data (descargados localmente, ~32 MB)
+tessdata/
+

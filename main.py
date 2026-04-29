@@ -19,6 +19,12 @@ ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+# If a local tessdata/ folder exists (no admin needed to install
+# spa.traineddata system-wide), point Tesseract at it via TESSDATA_PREFIX.
+_LOCAL_TESSDATA = ROOT / "tessdata"
+if _LOCAL_TESSDATA.is_dir() and "TESSDATA_PREFIX" not in os.environ:
+    os.environ["TESSDATA_PREFIX"] = str(_LOCAL_TESSDATA)
+
 from src.ocr_engine import tesseract_check  # noqa: E402
 from src.pdf_renderer import EncryptedPDFError, PdfTooLargeError  # noqa: E402
 from src.pipeline import process_pdf  # noqa: E402
