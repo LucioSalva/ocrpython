@@ -44,3 +44,4 @@ output/*/
 # Tesseract trained data (descargados localmente, ~32 MB)
 tessdata/
 
+.claude/
